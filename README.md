@@ -20,6 +20,7 @@ Par Clément JELEFF
 Nagios 4.4.6 à été installé sur une VM Ubuntu
 
 User: jean
+
 MDP : jean123
 
 ### 2) Installer les plugins nécessaires
@@ -42,7 +43,7 @@ PING CRITICAL -  Paquets perdus = 100%|rta=20.000000ms;10.000000;20.000000;0.000
 
 ### 6) Installer le plugin check_http et executer le sur votre propre serveur, aidez vous de la commande -help pour les arguments (utilisez les argument -H, -u et -a dans la même commande et observez le résultat)
 
->root@jean-virtual-machine:/usr/local/nagios/libexec# ./check_http -H 192.168.1.78 -u /nagios/ -a jean:jean123
+>root@jean-virtual-machine:/usr/local/nagios/libexec# ./check_http -H 192.168.1.78 -u /nagios/ -a nagiosadmin:jean123
 HTTP OK: HTTP/1.1 200 OK - 1248 octets en 0,002 secondes de temps de réponse |time=0,002097s;;;0,000000 size=1248B;;;0
 
 ### 7) Supervisez son serveur Nagios en créant un fichier “serveur_nagios.cfg” et en trouvant la configuration adéquate ( avec command, host, service… )
@@ -56,47 +57,44 @@ HTTP OK: HTTP/1.1 200 OK - 1248 octets en 0,002 secondes de temps de réponse |t
 }
 
 
->###############################################################################
-#
-# HOST DEFINITION
-#
-###############################################################################
-
-# Define a host for the local machine
+> # Define a host for the local machine
 
 define host {
 
-    use                     jean            ; Name of host template to use
+    use                     linux-server            ; Name of host template to use
                                                     ; This host definition will inherit all variables that are defined
                                                     ; in (or inherited by) the linux-server host template definition.
-    host_name               jean
-    alias                   jean
-    address                 172.0.0.1
+    host_name               server_nagios
+    alias                   server_nagios
+    address                 192.168.1.78
 }
 
-###############################################################################
-#
-# SERVICE DEFINITIONS
-#
-###############################################################################
 
-# Define a service to "ping" the local machine
+> # Define a service to "ping" the local machine
 
 define service {
 
     use                     local-service           ; Name of service template to use
-    host_name               serveur_nagios
+    host_name               server_nagios
     service_description     PING
     check_command           check_ping_localhost
 }
 
-##Déclaration du  répertoire créé dans le fichier nagios.cfg
+## Déclaration du  répertoire créé dans le fichier nagios.cfg
 
+
+#### Dans /usr/local/nagios/etc/nagios.cfg :
 > cfg_file=/usr/local/nagios/etc/objects/serveur_nagios.cfg
-> 
+
 
 ### 8) Vérifier le bon fonctionnement sur l'interface web
-> 
+
+### Screenshot Host
+![host](https://user-images.githubusercontent.com/56600546/161245355-3444fdb6-546b-44d0-afd8-51ece8ba4f33.PNG)
+
+### Screenshot Host
+![services](https://user-images.githubusercontent.com/56600546/161246014-01262deb-eb10-44fb-bc4f-93f2595cad1e.PNG)
+
  #### Bonus : Créer une VM linux supplémentaire et installer NRPE
 
 Sur votre serveur nagios,configurer NRPE et vérifier son bon fonctionnement sur l’interface web
