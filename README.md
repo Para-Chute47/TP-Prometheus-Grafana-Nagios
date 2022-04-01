@@ -4,10 +4,65 @@ Par Clément JELEFF
 
 # Partie 1 : Prometheus & Grafana
 ### 1) installer Prometheus & Grafana sous docker (faire un net host pour partager le réseau)
+
+#### Prometheus
+  > prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - 9090:9090
+    volumes:
+      - ./prometheus:/etc/prometheus
+      - ./prometheus/data:/var/lib/prometheus
+    command: --web.enable-lifecycle  --config.file=/etc/prometheus/prometheus.yml
+    networks:
+      - hosts
+
+#### Grafana
+>     image: grafana/grafana:latest
+    ports:
+      - 3000:3000
+    volumes:
+      - ./grafana:/var/lib/grafana
+      - ./grafana/grafana.ini:/etc/grafana/grafana.ini
+    environment:
+      - GF_PATHS_CONFIG=/etc/grafana/grafana.ini
+    depends_on:
+      - prometheus
+    networks:
+      - hosts
+
 ### 2) créer un node exporter de votre machine
+
+#### Node Exporter
+>   node-exporter:
+    image: prom/node-exporter
+    ports:
+      - 9100:9100
+    networks:
+      - hosts
+
 ### 3) remonter les métrique du CPU et de l’espace disque utilisé
+
+#### CPU mectric
+> 100 - (avg by (instance) (irate(node_cpu_seconds_total[5m])) * 100)
+
+#### Disk space mectric
+> 100 - ((node_filesystem_avail_bytes * 100) / node_filesystem_size_bytes)
+
 ### 4) Créer des labels pour les métriques en question
+
+
+
 ### 5) sur grafana, importer un template, mettre un temps de rafraîchissement toutes les 20 secondes et mettre un seuil d’alerte à 75% d’utilisation pour les métriques cités ci dessus.
+
+#### Template import
+![Import Dashboard](https://user-images.githubusercontent.com/56600546/161280140-63478103-f846-482a-b525-9e9723a251bd.PNG)
+
+#### Rafraîchissement 20s
+![autorefresh](https://user-images.githubusercontent.com/56600546/161280187-d9c378c0-a5cf-45ac-8e30-a53bff08e101.PNG)
+
+#### Alerte 75%
+
 ### 6) Sous docker, mettre en place un serveur de stockage (ex: nextcloud)
 ### 7) faire un node exporter pour votre serveur cloud et mettre la target sur Prometheus
 ### 8) remonter les métriques permettant de voir la bande passante de ce serveur (si possible essayer de simuler l’envoie de données vers votre serveur cloud)
